@@ -2,6 +2,16 @@ defmodule Twitter.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @type t :: %__MODULE__{
+          name: String.t(),
+          username: String.t(),
+          email: String.t(),
+          password: String.t(),
+          password_hash: String.t(),
+          inserted_at: DateTime.t(),
+          updated_at: DateTime.t(),
+          id: non_neg_integer()
+        }
   schema "users" do
     field :name, :string
     field :username, :string
