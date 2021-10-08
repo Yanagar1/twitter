@@ -3,11 +3,13 @@ defmodule TwitterWeb.UserController do
   alias Twitter.Accounts
   plug :authenticate when action in [:index, :show]
 
+  @spec index(Plug.Conn.t(), any) :: Plug.Conn.t()
   def index(conn, _params) do
     users = Accounts.list_users()
     render(conn, "index.html", users: users)
   end
 
+  @spec show(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def show(conn, %{"id" => id}) do
     user = Accounts.get_user(id)
     render(conn, "show.html", user: user)
@@ -15,12 +17,13 @@ defmodule TwitterWeb.UserController do
 
   alias Twitter.Accounts.User
 
-  @spec new(Plug.Conn.t(), map) :: Plug.Conn.t()
+  @spec new(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def new(conn, _params) do
     changeset = Accounts.change_user(%User{})
     render(conn, "new.html", changeset: changeset)
   end
 
+  @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, %{"user" => user_params}) do
     case Accounts.create_user(user_params) do
       {:ok, user} ->

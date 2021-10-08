@@ -1,10 +1,12 @@
 defmodule TwitterWeb.SessionController do
   use TwitterWeb, :controller
 
+  @spec new(Plug.Conn.t(), any) :: Plug.Conn.t()
   def new(conn, _) do
     render(conn, "new.html")
   end
 
+  @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, %{"session" => %{"username" => username, "password" => pass}}) do
     case Twitter.Accounts.authenticate_by_username_and_pass(username, pass) do
       {:ok, user} ->
@@ -20,6 +22,8 @@ defmodule TwitterWeb.SessionController do
     end
   end
 
+  # _ ia a map?
+  @spec delete(Plug.Conn.t(), any) :: Plug.Conn.t()
   def delete(conn, _) do
     conn
     |> TwitterWeb.Auth.signout()

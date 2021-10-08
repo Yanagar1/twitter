@@ -22,6 +22,7 @@ defmodule Twitter.Accounts.User do
     timestamps()
   end
 
+  @spec registration_changeset(t, map()) :: Ecto.Changeset.t(t)
   def registration_changeset(user, params) do
     user
     |> changeset(params)
@@ -34,6 +35,7 @@ defmodule Twitter.Accounts.User do
   # join validations into one function?
   # validate email != none ?
 
+  @spec changeset(t, map()) :: Ecto.Changeset.t(t)
   def changeset(user, attrs) do
     user
     |> cast(attrs, [:name, :username, :email])
