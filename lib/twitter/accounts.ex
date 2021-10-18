@@ -5,6 +5,9 @@ defmodule Twitter.Accounts do
   alias Twitter.Repo
   alias Twitter.Accounts.User
 
+  @doc """
+  create user: validate parameters and insert in the db
+  """
   @spec create_user(map()) ::
           {:ok, User.t()} | {:error, Ecto.Changeset.t(User.t())}
   def create_user(attrs \\ %{}) do
@@ -13,6 +16,9 @@ defmodule Twitter.Accounts do
     |> Repo.insert()
   end
 
+  @doc """
+  get_user: returns user by id
+  """
   @spec get_user(integer() | String.t()) :: User.t() | nil
   def get_user(id) do
     Repo.get(User, id)
@@ -24,21 +30,34 @@ defmodule Twitter.Accounts do
     Repo.get!(User, id)
   end
 
+  @doc """
+  returns a single user by any parameter
+  """
   @spec get_user_by(map()) :: User.t() | nil
   def get_user_by(params) do
     Repo.get_by(User, params)
   end
 
+  @doc """
+  lists all users in db
+  """
   @spec list_users :: list(User.t())
   def list_users do
     Repo.all(User)
   end
 
+  @doc """
+  changes user's email, username, or name information
+  """
   @spec change_user(User.t()) :: Ecto.Changeset.t(User.t())
   def change_user(%User{} = user) do
     User.changeset(user, %{})
   end
 
+  @doc """
+  find user by username, compare input password to the stored one.
+  returns {:ok, user} on success, {:error, :errorcode} on failure
+  """
   @spec authenticate_by_username_and_pass(String.t(), String.t()) ::
           {:ok, User.t()} | {:error, :unauthorized | :not_found}
 

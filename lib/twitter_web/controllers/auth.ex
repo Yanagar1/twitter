@@ -12,6 +12,9 @@ defmodule TwitterWeb.Auth do
     assign(conn, :current_user, user)
   end
 
+  @doc """
+  start a session and make a user the :current_user
+  """
   @spec signin(Plug.Conn.t(), User.t()) :: Plug.Conn.t()
   def signin(conn, user) do
     conn
@@ -20,6 +23,9 @@ defmodule TwitterWeb.Auth do
     |> configure_session(renew: true)
   end
 
+  @doc """
+  sign out: end session
+  """
   @spec signout(Plug.Conn.t()) :: Plug.Conn.t()
   def signout(conn) do
     configure_session(conn, drop: true)

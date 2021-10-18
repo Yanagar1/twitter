@@ -22,6 +22,9 @@ defmodule Twitter.Accounts.User do
     timestamps()
   end
 
+  @doc """
+  validate data on registration, includes the call to the regular changeset
+  """
   @spec registration_changeset(t, map()) :: Ecto.Changeset.t(t)
   def registration_changeset(user, params) do
     user
@@ -33,8 +36,10 @@ defmodule Twitter.Accounts.User do
   end
 
   # join validations into one function?
-  # validate email != none ?
 
+  @doc """
+  the regular changeset, validation for non-password inputs
+  """
   @spec changeset(t, map()) :: Ecto.Changeset.t(t)
   def changeset(user, attrs) do
     user
@@ -43,6 +48,9 @@ defmodule Twitter.Accounts.User do
     |> validate_length(:username, min: 1, max: 25)
   end
 
+  @doc """
+  adds password hash string to the changeset
+  """
   defp put_pass_hash(changeset) do
     case changeset do
       %Ecto.Changeset{valid?: true, changes: %{password: pass}} ->
