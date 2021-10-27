@@ -8,8 +8,17 @@ defmodule TwitterWeb.Auth do
   @spec call(Plug.Conn.t(), keyword()) :: Plug.Conn.t()
   def call(conn, _opts) do
     user_id = get_session(conn, :user_id)
-    user = user_id && Twitter.Accounts.get_user(user_id)
-    assign(conn, :current_user, user)
+
+    cond do
+      conn.assigns[:current_user] ->
+        conn
+
+      user = user_id && Twitter.Accounts.get_user(user_id) ->
+        assign(conn, :current_user, user)
+
+      true ->
+        assign(conn, :current_user, nil)
+    end
   end
 
   @doc """
@@ -29,5 +38,19 @@ defmodule TwitterWeb.Auth do
   @spec signout(Plug.Conn.t()) :: Plug.Conn.t()
   def signout(conn) do
     configure_session(conn, drop: true)
+  end
+
+  import Phoenix.Controller
+  alias TwitterWeb.Router.Helpers, as: Routes
+
+  def authenticate_user(conn, _opts) do
+    if conn.assigns.current_user do
+      conn
+    else
+      conn
+      |> put_flash(:error, "You must be logged in to access that page")
+      |> redirect(to: Routes.page_path(conn, :index))
+      |> halt()
+    end
   end
 end

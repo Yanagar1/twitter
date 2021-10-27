@@ -31,6 +31,7 @@ defmodule Twitter.Accounts.User do
     |> changeset(params)
     |> cast(params, [:password], [])
     |> validate_required([:password])
+    |> unique_constraint([:username])
     |> validate_length(:password, min: 6, max: 100)
     |> put_pass_hash()
   end

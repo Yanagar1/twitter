@@ -24,6 +24,7 @@ defmodule Twitter.DataCase do
       import Ecto.Changeset
       import Ecto.Query
       import Twitter.DataCase
+      import Twitter.TestHelpers
     end
   end
 

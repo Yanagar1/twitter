@@ -23,7 +23,7 @@ defmodule TwitterWeb.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
       import TwitterWeb.ConnCase
-
+      import Twitter.TestHelpers
       alias TwitterWeb.Router.Helpers, as: Routes
 
       # The default endpoint for testing

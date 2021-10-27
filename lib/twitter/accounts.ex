@@ -24,6 +24,9 @@ defmodule Twitter.Accounts do
     Repo.get(User, id)
   end
 
+  @doc """
+  returns user by id or raises Ecto.NoResultsError if not found
+  """
   @spec get_user!(integer() | String.t()) :: User.t()
   # has error handling
   def get_user!(id) do

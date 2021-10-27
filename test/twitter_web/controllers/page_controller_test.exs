@@ -3,6 +3,7 @@ defmodule TwitterWeb.PageControllerTest do
 
   test "GET /", %{conn: conn} do
     conn = get(conn, "/")
-    assert html_response(conn, 200) =~ "Welcome to Phoenix!"
+    # this fails because of custom welcome message
+    assert html_response(conn, 200) =~ "Welcome!"
   end
 end
