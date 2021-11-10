@@ -23,6 +23,7 @@ defmodule TwitterWeb do
 
       import Plug.Conn
       import TwitterWeb.Gettext
+      import TwitterWeb.Auth, only: [authenticate_user: 2]
       alias TwitterWeb.Router.Helpers, as: Routes
     end
   end
@@ -48,6 +49,7 @@ defmodule TwitterWeb do
 
       import Plug.Conn
       import Phoenix.Controller
+      import TwitterWeb.Auth, only: [authenticate_user: 2]
     end
   end
 

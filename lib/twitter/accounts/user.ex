@@ -49,9 +49,6 @@ defmodule Twitter.Accounts.User do
     |> validate_length(:username, min: 1, max: 25)
   end
 
-  @doc """
-  adds password hash string to the changeset
-  """
   defp put_pass_hash(changeset) do
     case changeset do
       %Ecto.Changeset{valid?: true, changes: %{password: pass}} ->

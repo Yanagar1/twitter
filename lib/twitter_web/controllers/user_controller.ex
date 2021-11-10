@@ -1,7 +1,8 @@
 defmodule TwitterWeb.UserController do
   use TwitterWeb, :controller
   alias Twitter.Accounts
-  plug :authenticate when action in [:index, :show]
+  alias Twitter.Accounts.User
+  plug :authenticate_user when action in [:index, :show]
 
   @spec index(Plug.Conn.t(), any) :: Plug.Conn.t()
   def index(conn, _params) do
@@ -15,8 +16,6 @@ defmodule TwitterWeb.UserController do
     IO.inspect(id)
     render(conn, "show.html", user: user)
   end
-
-  alias Twitter.Accounts.User
 
   @spec new(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def new(conn, _params) do
@@ -35,17 +34,6 @@ defmodule TwitterWeb.UserController do
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)
-    end
-  end
-
-  defp authenticate(conn, _opts) do
-    if conn.assigns.current_user do
-      conn
-    else
-      conn
-      |> put_flash(:error, "Please sign in to see this")
-      |> redirect(to: Routes.page_path(conn, :index))
-      |> halt()
     end
   end
 end

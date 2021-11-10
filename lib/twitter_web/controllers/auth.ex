@@ -1,5 +1,8 @@
 defmodule TwitterWeb.Auth do
   import Plug.Conn
+  import Phoenix.Controller
+
+  alias TwitterWeb.Router.Helpers, as: Routes
 
   @spec init(keyword()) :: keyword()
   def init(opts), do: opts
