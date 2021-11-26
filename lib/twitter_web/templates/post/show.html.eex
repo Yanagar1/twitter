@@ -3,8 +3,8 @@
 <ul>
 
   <li>
-    <strong> body:</strong>
-    <%= @post. body %>
+    <strong>body:</strong>
+    <%= @post.body %>
   </li>
 
 </ul>

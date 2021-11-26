@@ -3,6 +3,10 @@ defmodule Twitter.TestHelpers do
     Accounts
   }
 
+  alias Twitter.{
+    Twits
+  }
+
   def user_fixture(attrs \\ %{}) do
     {:ok, user} =
       attrs
@@ -15,5 +19,10 @@ defmodule Twitter.TestHelpers do
       |> Accounts.create_user()
 
     user
+  end
+
+  def post_fixture(user, attrs \\ %{body: "some body"}) do
+    {:ok, post} = Twits.create_post(user, attrs)
+    post
   end
 end

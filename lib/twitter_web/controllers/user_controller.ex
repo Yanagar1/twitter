@@ -13,7 +13,7 @@ defmodule TwitterWeb.UserController do
   @spec show(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def show(conn, %{"id" => id}) do
     user = Accounts.get_user(id)
-    IO.inspect(id)
+    # IO.inspect(id)
     render(conn, "show.html", user: user)
   end
 

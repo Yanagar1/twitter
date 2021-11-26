@@ -3,86 +3,165 @@ defmodule TwitterWeb.PostControllerTest do
 
   alias Twitter.Twits
 
-  @create_attrs %{" body": "some  body"}
-  @update_attrs %{" body": "some updated  body"}
-  @invalid_attrs %{" body": nil}
+  @create_attrs %{body: "some body"}
+  @update_attrs %{body: "some updated body"}
+  @invalid_attrs %{body: nil}
 
-  def fixture(:post) do
-    {:ok, post} = Twits.create_post(@create_attrs)
-    post
-  end
+  describe "successfully logged in access" do
+    setup %{conn: conn} do
+      user = user_fixture()
+      conn = init_test_session(conn, current_user: user, user_id: user.id)
+      post = post_fixture(user)
+      %{conn: conn, post: post, user: user}
+    end
 
-  describe "index" do
-    test "lists all posts", %{conn: conn} do
+    test "index: lists all current user's posts", %{conn: conn} do
       conn = get(conn, Routes.post_path(conn, :index))
       assert html_response(conn, 200) =~ "Listing Posts"
     end
-  end
 
-  describe "new post" do
-    test "renders form", %{conn: conn} do
+    test "new: renders form", %{conn: conn} do
       conn = get(conn, Routes.post_path(conn, :new))
       assert html_response(conn, 200) =~ "New Post"
     end
-  end
 
-  describe "create post" do
-    test "redirects to show when data is valid", %{conn: conn} do
+    test "create post: redirects to show when data is valid", %{conn: conn} do
       conn = post(conn, Routes.post_path(conn, :create), post: @create_attrs)
 
       assert %{id: id} = redirected_params(conn)
       assert redirected_to(conn) == Routes.post_path(conn, :show, id)
-
-      conn = get(conn, Routes.post_path(conn, :show, id))
-      assert html_response(conn, 200) =~ "Show Post"
     end
 
-    test "renders errors when data is invalid", %{conn: conn} do
+    test "create post: render form when data is invalid", %{conn: conn} do
       conn = post(conn, Routes.post_path(conn, :create), post: @invalid_attrs)
       assert html_response(conn, 200) =~ "New Post"
     end
-  end
 
-  describe "edit post" do
-    setup [:create_post]
+    test "show: one of my posts on successfull login", %{conn: conn, post: post} do
+      conn = get(conn, Routes.post_path(conn, :show, post.id))
 
-    test "renders form for editing chosen post", %{conn: conn, post: post} do
-      conn = get(conn, Routes.post_path(conn, :edit, post))
+      assert html_response(conn, 200) =~ "Show Post"
+    end
+
+    test "edit: renders form for editing chosen post", %{conn: conn, post: post} do
+      conn = get(conn, Routes.post_path(conn, :edit, post.id))
       assert html_response(conn, 200) =~ "Edit Post"
     end
-  end
 
-  describe "update post" do
-    setup [:create_post]
-
-    test "redirects when data is valid", %{conn: conn, post: post} do
-      conn = put(conn, Routes.post_path(conn, :update, post), post: @update_attrs)
+    test "update: redirects when data is valid", %{conn: conn, post: post} do
+      conn = put(conn, Routes.post_path(conn, :update, post.id), post: @update_attrs)
       assert redirected_to(conn) == Routes.post_path(conn, :show, post)
-
-      conn = get(conn, Routes.post_path(conn, :show, post))
-      assert html_response(conn, 200) =~ "some updated  body"
+      conn = get(conn, Routes.post_path(conn, :show, post.id))
+      assert html_response(conn, 200) =~ "some updated body"
     end
 
-    test "renders errors when data is invalid", %{conn: conn, post: post} do
-      conn = put(conn, Routes.post_path(conn, :update, post), post: @invalid_attrs)
+    test "update: render edit.html when data is invalid", %{conn: conn, post: post} do
+      conn = put(conn, Routes.post_path(conn, :update, post.id), post: @invalid_attrs)
       assert html_response(conn, 200) =~ "Edit Post"
     end
-  end
 
-  describe "delete post" do
-    setup [:create_post]
-
-    test "deletes chosen post", %{conn: conn, post: post} do
-      conn = delete(conn, Routes.post_path(conn, :delete, post))
+    test "delete: chosen post", %{conn: conn, post: post} do
+      conn = delete(conn, Routes.post_path(conn, :delete, post.id))
       assert redirected_to(conn) == Routes.post_path(conn, :index)
+
       assert_error_sent 404, fn ->
         get(conn, Routes.post_path(conn, :show, post))
       end
     end
   end
 
-  defp create_post(_) do
-    post = fixture(:post)
-    %{post: post}
+  describe "refuse if not signed in" do
+    setup %{conn: conn} do
+      user = user_fixture()
+      post = post_fixture(user)
+      %{conn: conn, post: post, user: user}
+    end
+
+    test "index", %{conn: conn} do
+      conn = get(conn, Routes.post_path(conn, :index))
+      assert redirected_to(conn) == Routes.page_path(conn, :index)
+    end
+
+    test "new", %{conn: conn} do
+      conn = get(conn, Routes.post_path(conn, :new))
+      assert redirected_to(conn) == Routes.page_path(conn, :index)
+    end
+
+    test "create", %{conn: conn} do
+      conn = post(conn, Routes.post_path(conn, :create), post: @create_attrs)
+      assert redirected_to(conn) == Routes.page_path(conn, :index)
+    end
+
+    test "show", %{conn: conn, post: post} do
+      conn = get(conn, Routes.post_path(conn, :show, post.id))
+      assert redirected_to(conn) == Routes.page_path(conn, :index)
+    end
+
+    test "edit", %{conn: conn, post: post} do
+      conn = get(conn, Routes.post_path(conn, :edit, post.id))
+      assert redirected_to(conn) == Routes.page_path(conn, :index)
+    end
+
+    test "update", %{conn: conn, post: post} do
+      conn = put(conn, Routes.post_path(conn, :update, post.id), post: @update_attrs)
+      assert redirected_to(conn) == Routes.page_path(conn, :index)
+    end
+
+    test "delete", %{conn: conn, post: post} do
+      conn = delete(conn, Routes.post_path(conn, :delete, post.id))
+      assert redirected_to(conn) == Routes.page_path(conn, :index)
+    end
+  end
+
+  describe "signed in but accessing someone else's posts" do
+    setup %{conn: conn} do
+      user_me = user_fixture()
+      user_not_me = user_fixture()
+      # not_me makes a post
+      conn = init_test_session(conn, current_user: user_not_me, user_id: user_not_me.id)
+      not_my_post = post_fixture(user_not_me)
+      conn = configure_session(conn, drop: true)
+      # me enters
+      conn = init_test_session(conn, current_user: user_me, user_id: user_me.id)
+      my_post = post_fixture(user_me, %{body: "wuff wuff"})
+
+      %{conn: conn, post: not_my_post, user1: user_me, user2: user_not_me}
+    end
+
+    test "index includes my_post and not not_my_post", %{conn: conn} do
+      conn = get(conn, Routes.post_path(conn, :index))
+      assert html_response(conn, 200) =~ "wuff wuff"
+      assert html_response(conn, 200) != "some body"
+    end
+
+    # test "create post from some one's else's account", %{
+    #   conn: conn,
+    #   user2: user_not_me,
+    #   user1: user_me
+    # } do
+    #   new_post = %{body: "i love you"}
+    #   conn = post(conn, Routes.post_path(conn, :create), post: new_post, user1: user_me)
+    #   assert %{id: id} = redirected_params(conn)
+    #   assert redirected_to(conn, Routes.post_path(conn, :show, id))
+    #   assert new_post.user_id == user_me.id
+    # end
+
+    test "show, edit, update, delete", %{conn: conn, post: not_my_post} do
+      assert_error_sent :not_found, fn ->
+        get(conn, Routes.post_path(conn, :show, not_my_post.id))
+      end
+
+      assert_error_sent :not_found, fn ->
+        get(conn, Routes.post_path(conn, :edit, not_my_post.id))
+      end
+
+      assert_error_sent :not_found, fn ->
+        put(conn, Routes.post_path(conn, :update, not_my_post.id), post: @update_attrs)
+      end
+
+      assert_error_sent :not_found, fn ->
+        delete(conn, Routes.post_path(conn, :delete, not_my_post.id))
+      end
+    end
   end
 end
