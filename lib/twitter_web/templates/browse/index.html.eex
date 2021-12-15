@@ -1,0 +1,22 @@
+<h1>Listing Posts</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>body</th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for post <- @posts do %>
+    <tr>
+      <td><%= post.body %></td>
+
+      <td>
+        <%# <span><%= link "Like", to: Routes.like_path(@conn, :create, post) %></span> %>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>

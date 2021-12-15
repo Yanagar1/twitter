@@ -1,6 +1,5 @@
 defmodule TwitterWeb.PostViewTest do
   use TwitterWeb.ConnCase, async: true
-  alias Twitter.Accounts.User
   alias Twitter.Twits.Post
   import Phoenix.View
 

@@ -6,6 +6,10 @@
     <strong>body:</strong>
     <%= @post.body %>
   </li>
+  <li>
+    <strong>Likes: </strong>
+    <%= %>
+  </li>
 
 </ul>
 

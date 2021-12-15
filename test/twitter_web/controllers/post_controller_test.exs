@@ -1,8 +1,6 @@
 defmodule TwitterWeb.PostControllerTest do
   use TwitterWeb.ConnCase
 
-  alias Twitter.Twits
-
   @create_attrs %{body: "some body"}
   @update_attrs %{body: "some updated body"}
   @invalid_attrs %{body: nil}
@@ -133,18 +131,6 @@ defmodule TwitterWeb.PostControllerTest do
       assert html_response(conn, 200) =~ "wuff wuff"
       assert html_response(conn, 200) != "some body"
     end
-
-    # test "create post from some one's else's account", %{
-    #   conn: conn,
-    #   user2: user_not_me,
-    #   user1: user_me
-    # } do
-    #   new_post = %{body: "i love you"}
-    #   conn = post(conn, Routes.post_path(conn, :create), post: new_post, user1: user_me)
-    #   assert %{id: id} = redirected_params(conn)
-    #   assert redirected_to(conn, Routes.post_path(conn, :show, id))
-    #   assert new_post.user_id == user_me.id
-    # end
 
     test "show, edit, update, delete", %{conn: conn, post: not_my_post} do
       assert_error_sent :not_found, fn ->

@@ -1,0 +1,19 @@
+<h1>Listing Likes</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>likers</th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for l <- @likes do %>
+    <tr>
+      <td><%= l.user_id %></td>
+
+    </tr>
+<% end %>
+  </tbody>
+</table>

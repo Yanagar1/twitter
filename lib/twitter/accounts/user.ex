@@ -36,8 +36,6 @@ defmodule Twitter.Accounts.User do
     |> put_pass_hash()
   end
 
-  # join validations into one function?
-
   @doc """
   the regular changeset, validation for non-password inputs
   """

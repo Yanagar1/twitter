@@ -1,1 +1,2 @@
+<h1>Show User</h1>
 <strong><%= @user.username%></strong> (<%= @user.id %>)
