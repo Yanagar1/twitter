@@ -20,6 +20,12 @@ defmodule TwitterWeb.Router do
     get "/", PageController, :index
     resources "/users", UserController, only: [:index, :show, :new, :create]
     resources "/sessions", SessionController, only: [:new, :create, :delete]
+    resources "/posts", PostController
+
+    get "/browse/:author_id", BrowseController, :index
+
+    resources "/like/:post_id", LikeController, only: [:index, :create]
+    delete "/like/:post_id", LikeController, :delete
   end
 
   # Other scopes may use custom stacks.
