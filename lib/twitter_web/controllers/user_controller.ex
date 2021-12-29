@@ -13,13 +13,12 @@ defmodule TwitterWeb.UserController do
   @spec show(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def show(conn, %{"id" => id}) do
     user = Accounts.get_user(id)
-    # IO.inspect(id)
     render(conn, "show.html", user: user)
   end
 
   @spec new(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def new(conn, _params) do
-    changeset = Accounts.change_user(%User{})
+    changeset = User.changeset(%User{}, %{})
     render(conn, "new.html", changeset: changeset)
   end
 

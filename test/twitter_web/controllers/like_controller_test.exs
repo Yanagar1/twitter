@@ -6,11 +6,9 @@ defmodule TwitterWeb.LikeControllerTest do
     # make post
     author = user_fixture()
     liker = user_fixture()
-    conn = init_test_session(conn, current_user: author, user_id: author.id)
-    post = post_fixture(author)
-    conn = clear_session(conn)
+    {:ok, post} = Twits.create_post(author, %{body: "some body"})
 
-    # relogin
+    # login
     conn = init_test_session(conn, current_user: liker, user_id: liker.id)
     like = [Twits.create_like(liker, post.id)]
 

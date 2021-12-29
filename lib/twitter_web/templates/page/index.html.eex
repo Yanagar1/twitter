@@ -2,13 +2,3 @@
   <h1><%= gettext "Welcome, %{name}!", name: "Rap Birds" %></h1>
   <p>This is your poetic twitter. <br> Share your wit-twit!</p>
 </section>
-
-<!--<section class="row">
-  <article class="column">
-    <a href="/users/new">Sign Up</a>
-  </article>
-  <article class="column">
-    <a href="/sessions/new">Sign In</a>
-  </article>
-
-</section>-->

@@ -1,6 +1,6 @@
 defmodule TwitterWeb.PostControllerTest do
   use TwitterWeb.ConnCase
-
+  alias Twitter.Twits
   @create_attrs %{body: "some body"}
   @update_attrs %{body: "some updated body"}
   @invalid_attrs %{body: nil}
@@ -116,9 +116,8 @@ defmodule TwitterWeb.PostControllerTest do
       user_me = user_fixture()
       user_not_me = user_fixture()
       # not_me makes a post
-      conn = init_test_session(conn, current_user: user_not_me, user_id: user_not_me.id)
-      not_my_post = post_fixture(user_not_me)
-      conn = configure_session(conn, drop: true)
+      {:ok, not_my_post} = Twits.create_post(user_not_me, %{body: "some body"})
+
       # me enters
       conn = init_test_session(conn, current_user: user_me, user_id: user_me.id)
       my_post = post_fixture(user_me, %{body: "wuff wuff"})

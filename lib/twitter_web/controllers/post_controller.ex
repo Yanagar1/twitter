@@ -3,8 +3,6 @@ defmodule TwitterWeb.PostController do
   alias Twitter.Twits
   alias Twitter.Twits.Post
 
-  # alias Twitter.Accounts.User
-
   # all these are for signed in users
   # all require current_user to be the author
   plug :authenticate_user
@@ -23,7 +21,7 @@ defmodule TwitterWeb.PostController do
   """
   @spec new(Plug.Conn.t(), map(), User.t()) :: Plug.Conn.t()
   def new(conn, _params, _current_user) do
-    changeset = Twits.change_post(%Post{})
+    changeset = Post.changeset(%Post{}, %{})
     render(conn, "new.html", changeset: changeset)
   end
 
@@ -58,7 +56,7 @@ defmodule TwitterWeb.PostController do
   @spec edit(Plug.Conn.t(), map(), User.t()) :: Plug.Conn.t()
   def edit(conn, %{"id" => id}, current_user) do
     post = Twits.get_post!(current_user, id)
-    changeset = Twits.change_post(post)
+    changeset = Post.changeset(post, %{})
     render(conn, "edit.html", post: post, changeset: changeset)
   end
 
@@ -67,16 +65,14 @@ defmodule TwitterWeb.PostController do
   """
   @spec update(Plug.Conn.t(), map(), User.t()) :: Plug.Conn.t()
   def update(conn, %{"id" => id, "post" => post_params}, current_user) do
-    post = Twits.get_post!(current_user, id)
-
-    case Twits.update_post(post, post_params) do
+    case Twits.update_post(current_user, id, post_params) do
       {:ok, post} ->
         conn
         |> put_flash(:info, "Post updated successfully.")
         |> redirect(to: Routes.post_path(conn, :show, post))
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "edit.html", post: post, changeset: changeset)
+        render(conn, "edit.html", post: changeset.data, changeset: changeset)
     end
   end
 
@@ -85,8 +81,7 @@ defmodule TwitterWeb.PostController do
   """
   @spec delete(Plug.Conn.t(), map(), User.t()) :: Plug.Conn.t()
   def delete(conn, %{"id" => id}, current_user) do
-    post = Twits.get_post!(current_user, id)
-    {:ok, _post} = Twits.delete_post(post)
+    {:ok, _post} = Twits.delete_post(current_user, id)
 
     conn
     |> put_flash(:info, "Post deleted successfully.")

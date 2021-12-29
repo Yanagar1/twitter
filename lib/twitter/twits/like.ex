@@ -25,5 +25,7 @@ defmodule Twitter.Twits.Like do
     like
     |> cast(attrs, [:user_id, :post_id])
     |> validate_required([:user_id, :post_id])
+    |> unique_constraint([:user_id, :post_id])
+    |> unsafe_validate_unique([:user_id, :post_id], Twitter.Repo)
   end
 end

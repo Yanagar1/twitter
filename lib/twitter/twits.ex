@@ -14,13 +14,13 @@ defmodule Twitter.Twits do
     from p in query, where: p.user_id == ^user_id
   end
 
-  @spec list_posts(User.t()) :: list(Post.t())
   @doc """
   Returns the list of posts. This fn is used for the current user.
   ## Examples
       iex> list_posts()
       [%Post{}, ...]
   """
+  @spec list_posts(User.t()) :: list(Post.t())
   def list_posts(%Accounts.User{} = user) do
     Post
     |> user_posts_query(user)
@@ -30,28 +30,22 @@ defmodule Twitter.Twits do
   @doc """
   list posts by author id
   """
-  @spec list_posts_by_author_id(integer() | String.t()) :: list(Post.t())
+  @spec list_posts_by_author_id(non_neg_integer() | String.t()) :: list(Post.t())
   def list_posts_by_author_id(author_id) do
     Repo.all(from p in Post, where: p.user_id == ^author_id)
   end
 
-  @spec get_post!(User.t(), integer() | String.t()) :: Post.t()
   @doc """
   Gets a single post: takes user and the post id
   Raises `Ecto.NoResultsError` if the Post does not exist.
-  ## Examples
-      iex> get_post!(123)
-      %Post{}
-      iex> get_post!(456)
-      ** (Ecto.NoResultsError)
   """
+  @spec get_post!(User.t(), non_neg_integer() | String.t()) :: Post.t()
   def get_post!(%Accounts.User{} = user, id) do
     Post
     |> user_posts_query(user)
     |> Repo.get!(id)
   end
 
-  @spec create_post(User.t(), map()) :: {:ok, Post.t()} | {:error, Ecto.Changeset.t(Post.t())}
   @doc """
   Creates a post. current_user id is registered automatically
   ## Examples
@@ -60,6 +54,7 @@ defmodule Twitter.Twits do
       iex> create_post(%{field: bad_value})
       {:error, %Ecto.Changeset{}}
   """
+  @spec create_post(User.t(), map()) :: {:ok, Post.t()} | {:error, Ecto.Changeset.t(Post.t())}
   def create_post(%Accounts.User{} = user, attrs \\ %{}) do
     %Post{}
     |> Post.changeset(attrs)
@@ -67,7 +62,6 @@ defmodule Twitter.Twits do
     |> Repo.insert()
   end
 
-  @spec update_post(Post.t(), map()) :: {:ok, Post.t()} | {:error, Ecto.Changeset.t(Post.t())}
   @doc """
   Updates a post.
   ## Examples
@@ -76,13 +70,16 @@ defmodule Twitter.Twits do
       iex> update_post(post, %{field: bad_value})
       {:error, %Ecto.Changeset{}}
   """
-  def update_post(%Post{} = post, attrs) do
+  @spec update_post(User.t(), non_neg_integer() | String.t(), map()) ::
+          {:ok, Post.t()} | {:error, Ecto.Changeset.t(Post.t())}
+  def update_post(current_user, id, attrs) do
+    post = get_post!(current_user, id)
+
     post
     |> Post.changeset(attrs)
     |> Repo.update()
   end
 
-  @spec delete_post(Post.t()) :: {:ok, Post.t()} | {:error, Ecto.Changeset.t(Post.t())}
   @doc """
   Deletes a post.
   ## Examples
@@ -91,24 +88,15 @@ defmodule Twitter.Twits do
       iex> delete_post(post)
       {:error, %Ecto.Changeset{}}
   """
-  def delete_post(%Post{} = post) do
+  @spec delete_post(User.t(), non_neg_integer() | String.t()) ::
+          {:ok, Post.t()} | {:error, Ecto.Changeset.t(Post.t())}
+  def delete_post(current_user, id) do
+    post = get_post!(current_user, id)
     Repo.delete(post)
   end
 
-  @spec change_post(Post.t(), map()) :: Ecto.Changeset.t(Post.t())
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking post changes.
-  ## Examples
-      iex> change_post(post)
-      %Ecto.Changeset{data: %Post{}}
-  """
-  def change_post(%Post{} = post, attrs \\ %{}) do
-    Post.changeset(post, attrs)
-  end
-
-  ################################################
   ############# LIKES ###########################
-  ################################################
+
   defp likes_of_post_query(query, post_id) do
     from l in query, where: l.post_id == ^post_id
   end
@@ -117,10 +105,10 @@ defmodule Twitter.Twits do
     from l in query, where: l.post_id == ^post_id and l.user_id == ^user_id
   end
 
-  @spec list_likes_by_post_id(integer() | String.t()) :: list(Like.t())
   @doc """
   Returns the likes of a post.
   """
+  @spec list_likes_by_post_id(non_neg_integer() | String.t()) :: list(Like.t())
   def list_likes_by_post_id(post_id) do
     Like
     |> likes_of_post_query(post_id)
@@ -131,33 +119,27 @@ defmodule Twitter.Twits do
   like someone else's post: the post_id and current user should be passed
   current user will be assigned automatically with actions in like_controller
   """
-  @spec create_like(User.t(), integer() | String.t()) :: Like.t()
+  @spec create_like(User.t(), non_neg_integer() | String.t()) ::
+          {:ok, Like.t()} | {:error, Ecto.Changeset.t(Like.t())}
   def create_like(%Accounts.User{} = user, post_id) do
-    # check that it doesn't exist
-    query = get_like_query(Like, post_id, user)
+    post = Repo.get_by!(Post, id: post_id)
 
-    with false <- Repo.exists?(query) do
-      %Like{}
-      |> Like.changeset(%{user_id: user.id, post_id: post_id})
-      # |> Ecto.Changeset.put_assoc(:post, post)
-      |> Repo.insert()
-    end
+    %Like{}
+    |> Like.changeset(%{user_id: user.id, post_id: post_id})
+    |> Ecto.Changeset.put_assoc(:post, post)
+    |> Repo.insert()
   end
 
   @doc """
   unlike someone else's post, the post and current user should be passed
+  raises EctoNoResults exception
   """
-  @spec delete_like(User.t(), integer() | String.t()) ::
+  @spec delete_like(User.t(), non_neg_integer() | String.t()) ::
           {:ok, Like.t()} | {:error, Ecto.Changeset.t(Like.t())}
   def delete_like(%Accounts.User{} = user, post_id) do
-    # check that it exists
-    query = get_like_query(Like, post_id, user)
-    # calling the same query twice...
-    with true <- Repo.exists?(query) do
-      Like
-      |> get_like_query(post_id, user)
-      |> Repo.one()
-      |> Repo.delete()
-    end
+    Like
+    |> get_like_query(post_id, user)
+    |> Repo.one!()
+    |> Repo.delete()
   end
 end

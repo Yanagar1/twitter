@@ -1,16 +1,13 @@
 defmodule TwitterWeb.BrowseControllerTest do
   use TwitterWeb.ConnCase
-
+  alias Twitter.Twits
   # make post from one user account, then relogin -> should still
   # see the post, as it is the public post controller
   setup %{conn: conn} do
     author = user_fixture()
     reader = user_fixture()
 
-    # author writes post and logs out
-    conn = init_test_session(conn, current_user: author, user_id: author.id)
-    post = post_fixture(author, %{body: "i love you"})
-    conn = clear_session(conn)
+    {:ok, post} = Twits.create_post(author, %{body: "i love you"})
 
     %{conn: conn, post: post, author: author, reader: reader}
   end

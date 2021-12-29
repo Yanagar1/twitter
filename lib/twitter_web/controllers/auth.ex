@@ -43,9 +43,11 @@ defmodule TwitterWeb.Auth do
     configure_session(conn, drop: true)
   end
 
-  import Phoenix.Controller
-  alias TwitterWeb.Router.Helpers, as: Routes
-
+  @doc """
+  if current_user is assigned, continue
+  if not: redirect to sign in page
+  """
+  @spec authenticate_user(Plug.Conn.t(), any) :: Plug.Conn.t()
   def authenticate_user(conn, _opts) do
     if conn.assigns.current_user do
       conn

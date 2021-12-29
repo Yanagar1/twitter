@@ -15,17 +15,20 @@ defmodule TwitterWeb.LikeController do
   end
 
   @doc """
-  return added like for a given post
+  add like for a given post_id
   """
   @spec create(Plug.Connt.t(), map(), User.t()) :: Plug.Conn.t()
   def create(conn, %{"post_id" => post_id}, current_user) do
-    with {:ok, _} <- Twits.create_like(current_user, post_id) do
-      conn = put_flash(conn, :info, "You liked this")
+    case Twits.create_like(current_user, post_id) do
+      {:ok, _} ->
+        conn = put_flash(conn, :info, "You liked this")
+
+      {:error, _} ->
+        conn = put_flash(conn, :info, "Couldn't send like")
     end
 
     # return to all posts made by author, because I don't have :show method in browse
-    post = Repo.get!(Twits.Post, post_id)
-    author_id = post.user_id
+    %{user_id: author_id} = Repo.get(Twits.Post, post_id)
     conn = redirect(conn, to: Routes.browse_path(conn, :index, author_id))
   end
 
@@ -34,13 +37,16 @@ defmodule TwitterWeb.LikeController do
   """
   @spec delete(Plug.Connt.t(), map(), User.t()) :: Plug.Conn.t()
   def delete(conn, %{"post_id" => post_id}, current_user) do
-    with {:ok, _} <- Twits.delete_like(current_user, post_id) do
-      conn = put_flash(conn, :info, "Like removed")
+    case Twits.delete_like(current_user, post_id) do
+      {:ok, _} ->
+        conn = put_flash(conn, :info, "Like removed")
+
+      {:error, _} ->
+        conn = put_flash(conn, :info, "Couldn't delete like")
     end
 
     # return to all posts made by author, because I don't have :show method in browse
-    post = Repo.get!(Twits.Post, post_id)
-    author_id = post.user_id
+    %{user_id: author_id} = Repo.get(Twits.Post, post_id)
     conn = redirect(conn, to: Routes.browse_path(conn, :index, author_id))
   end
 

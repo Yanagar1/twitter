@@ -19,7 +19,7 @@ defmodule Twitter.Accounts do
   @doc """
   get_user: returns user by id
   """
-  @spec get_user(integer() | String.t()) :: User.t() | nil
+  @spec get_user(non_neg_integer() | String.t()) :: User.t() | nil
   def get_user(id) do
     Repo.get(User, id)
   end
@@ -27,7 +27,7 @@ defmodule Twitter.Accounts do
   @doc """
   returns user by id or raises Ecto.NoResultsError if not found
   """
-  @spec get_user!(integer() | String.t()) :: User.t()
+  @spec get_user!(non_neg_integer() | String.t()) :: User.t()
   # has error handling
   def get_user!(id) do
     Repo.get!(User, id)
@@ -47,14 +47,6 @@ defmodule Twitter.Accounts do
   @spec list_users :: list(User.t())
   def list_users do
     Repo.all(User)
-  end
-
-  @doc """
-  changes user's email, username, or name information
-  """
-  @spec change_user(User.t()) :: Ecto.Changeset.t(User.t())
-  def change_user(%User{} = user) do
-    User.changeset(user, %{})
   end
 
   @doc """
