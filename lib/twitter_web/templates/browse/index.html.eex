@@ -14,7 +14,7 @@
       <td><%= post.body %></td>
 
       <td>
-        <%# <span><%= link "Like", to: Routes.like_path(@conn, :create, post) %></span> %>
+        <span> <%= link "Like", to: Routes.browse_like_path(@conn, :like, post.user_id, post.id) %></span>
       </td>
     </tr>
 <% end %>

@@ -15,19 +15,6 @@ defmodule Twitter.Twits do
   end
 
   @doc """
-  Returns the list of posts. This fn is used for the current user.
-  ## Examples
-      iex> list_posts()
-      [%Post{}, ...]
-  """
-  @spec list_posts(User.t()) :: list(Post.t())
-  def list_posts(%Accounts.User{} = user) do
-    Post
-    |> user_posts_query(user)
-    |> Repo.all()
-  end
-
-  @doc """
   list posts by author id
   """
   @spec list_posts_by_author_id(non_neg_integer() | String.t()) :: list(Post.t())
@@ -44,6 +31,7 @@ defmodule Twitter.Twits do
     Post
     |> user_posts_query(user)
     |> Repo.get!(id)
+    |> Repo.preload(:likes)
   end
 
   @doc """
@@ -97,37 +85,32 @@ defmodule Twitter.Twits do
 
   ############# LIKES ###########################
 
-  defp likes_of_post_query(query, post_id) do
-    from l in query, where: l.post_id == ^post_id
-  end
-
-  defp get_like_query(query, post_id, %Accounts.User{id: user_id}) do
-    from l in query, where: l.post_id == ^post_id and l.user_id == ^user_id
-  end
-
   @doc """
-  Returns the likes of a post.
-  """
-  @spec list_likes_by_post_id(non_neg_integer() | String.t()) :: list(Like.t())
-  def list_likes_by_post_id(post_id) do
-    Like
-    |> likes_of_post_query(post_id)
-    |> Repo.all()
-  end
-
-  @doc """
-  like someone else's post: the post_id and current user should be passed
+  like someone's post: the post_id and current user should be passed
   current user will be assigned automatically with actions in like_controller
   """
   @spec create_like(User.t(), non_neg_integer() | String.t()) ::
           {:ok, Like.t()} | {:error, Ecto.Changeset.t(Like.t())}
-  def create_like(%Accounts.User{} = user, post_id) do
+  def create_like(current_user, post_id) do
     post = Repo.get_by!(Post, id: post_id)
 
     %Like{}
-    |> Like.changeset(%{user_id: user.id, post_id: post_id})
+    |> Like.changeset(%{user_id: current_user.id, post_id: post_id})
     |> Ecto.Changeset.put_assoc(:post, post)
     |> Repo.insert()
+  end
+
+  @spec list_likes(Post.t()) :: list(Like.t())
+  def list_likes(%Post{} = post) do
+    Repo.all(
+      from a in Ecto.assoc(post, :likes),
+        limit: 500,
+        preload: [:user]
+    )
+  end
+
+  defp get_like_query(query, post_id, %Accounts.User{id: user_id}) do
+    from l in query, where: l.post_id == ^post_id and l.user_id == ^user_id
   end
 
   @doc """

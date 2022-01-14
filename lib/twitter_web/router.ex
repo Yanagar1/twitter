@@ -22,10 +22,10 @@ defmodule TwitterWeb.Router do
     resources "/sessions", SessionController, only: [:new, :create, :delete]
     resources "/posts", PostController
 
-    get "/browse/:author_id", BrowseController, :index
-
-    resources "/like/:post_id", LikeController, only: [:index, :create]
-    delete "/like/:post_id", LikeController, :delete
+    resources "/browse/:author_id", BrowseController, only: [:index, :show] do
+      post "/like", BrowseController, :like, as: :like
+      delete "/unlike", BrowseController, :unlike, as: :unlike
+    end
   end
 
   # Other scopes may use custom stacks.

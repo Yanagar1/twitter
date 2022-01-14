@@ -34,14 +34,6 @@ defmodule Twitter.Accounts do
   end
 
   @doc """
-  returns a single user by any parameter
-  """
-  @spec get_user_by(map()) :: User.t() | nil
-  def get_user_by(params) do
-    Repo.get_by(User, params)
-  end
-
-  @doc """
   lists all users in db
   """
   @spec list_users :: list(User.t())
@@ -57,7 +49,7 @@ defmodule Twitter.Accounts do
           {:ok, User.t()} | {:error, :unauthorized | :not_found}
 
   def authenticate_by_username_and_pass(username, given_pass) do
-    user = get_user_by(username: username)
+    user = Repo.get_by(User, username: username)
 
     cond do
       user && Pbkdf2.verify_pass(given_pass, user.password_hash) ->

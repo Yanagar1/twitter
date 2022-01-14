@@ -9,9 +9,9 @@
     </tr>
   </thead>
   <tbody>
-<%= for l <- @likes do %>
+<%= for like <- @likes do %>
     <tr>
-      <td><%= l.user_id %></td>
+      <td><%= like.user_id %></td>
 
     </tr>
 <% end %>

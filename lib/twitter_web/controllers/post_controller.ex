@@ -2,7 +2,6 @@ defmodule TwitterWeb.PostController do
   use TwitterWeb, :controller
   alias Twitter.Twits
   alias Twitter.Twits.Post
-
   # all these are for signed in users
   # all require current_user to be the author
   plug :authenticate_user
@@ -12,7 +11,7 @@ defmodule TwitterWeb.PostController do
   """
   @spec index(Plug.Conn.t(), any, User.t()) :: Plug.Conn.t()
   def index(conn, _params, current_user) do
-    posts = Twits.list_posts(current_user)
+    posts = Twits.list_posts_by_author_id(current_user.id)
     render(conn, "index.html", posts: posts)
   end
 

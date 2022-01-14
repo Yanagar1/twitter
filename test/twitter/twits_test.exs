@@ -16,15 +16,11 @@ defmodule Twitter.TwitsTest do
       %{user: user, post: post}
     end
 
-    test "list_posts/1 returns all posts of current user", %{user: user, post: post} do
-      assert post = Twits.list_posts(user)
-    end
-
     test "list_posts_by_author_id/1 returns all posts of a given author", %{
       user: user,
       post: post
     } do
-      # equivalent to list_posts when own id is passed
+      # show my posts when current_user.id is passed
       assert post = Twits.list_posts_by_author_id(user.id)
     end
 
@@ -71,9 +67,13 @@ defmodule Twitter.TwitsTest do
       %{author: author, post: post, liker: liker}
     end
 
-    test "list_likes_by_post_id(post_id) checks that list of likes is returned", %{post: post} do
-      assert likes = Twits.list_likes_by_post_id(post.id)
-      assert length(likes) == 0
+    test "list_likes(post) checks that list of likes is returned", %{
+      post: post,
+      liker: liker
+    } do
+      Twits.create_like(liker, post.id)
+      likes = Twits.list_likes(post)
+      assert length(likes) == 1
     end
 
     test "create like; try like twice returns error", %{post: post, liker: liker} do
