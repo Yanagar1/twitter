@@ -1,9 +1,7 @@
 defmodule TwitterWeb.BrowseController do
   use TwitterWeb, :controller
   alias Twitter.Twits
-  alias Twitter.Twits.Post
   import Ecto.Query, warn: false
-  alias Twitter.Repo
 
   plug :authenticate_user
 
@@ -20,45 +18,45 @@ defmodule TwitterWeb.BrowseController do
   show a public post /browse/author_id/post_id
   """
   @spec show(Plug.Conn.t(), map(), User.t()) :: Plug.Connt.t()
-  def show(conn, %{"author_id" => author_id, "id" => id}, _current_user) do
-    post = Repo.one!(from p in Post, where: p.user_id == ^author_id, where: p.id == ^id)
+  def show(conn, %{"author_id" => author_id, "post_id" => post_id}, _current_user) do
+    post = Twits.get_post!(author_id, post_id)
     render(conn, "show.html", post: post)
   end
 
   @doc """
-  add like for a given post_id. Here, browse_id is the post_id
+  add like for a given post_id. Here, browse_post_id is the post_id
   """
   @spec like(Plug.Conn.t(), map(), User.t()) :: Plug.Conn.t()
-  def like(conn, %{"author_id" => author_id, "browse_id" => browse_id}, current_user) do
-    case Twits.create_like(current_user, browse_id) do
+  def like(conn, %{"author_id" => author_id, "browse_post_id" => browse_post_id}, current_user) do
+    case Twits.create_like(current_user, author_id, browse_post_id) do
       {:ok, _} ->
         conn
         |> put_flash(:info, "You liked this")
+        |> redirect(to: Routes.browse_path(conn, :show, author_id, browse_post_id))
 
       {:error, _} ->
         conn
         |> put_flash(:info, "Couldn't send like")
+        |> redirect(to: Routes.browse_path(conn, :show, author_id, browse_post_id))
     end
-
-    # return to :show post made by author
-    conn = redirect(conn, to: Routes.browse_path(conn, :show, author_id, browse_id))
   end
 
   @doc """
   delete like for a given post
   """
   @spec unlike(Plug.Connt.t(), map(), User.t()) :: Plug.Conn.t()
-  def unlike(conn, %{"author_id" => author_id, "browse_id" => browse_id}, current_user) do
-    case Twits.delete_like(current_user, browse_id) do
+  def unlike(conn, %{"author_id" => author_id, "browse_post_id" => browse_post_id}, current_user) do
+    case Twits.delete_like(current_user, browse_post_id) do
       {:ok, _} ->
-        conn = put_flash(conn, :info, "Like removed")
+        conn
+        |> put_flash(:info, "Like removed")
+        |> redirect(to: Routes.browse_path(conn, :show, author_id, browse_post_id))
 
       {:error, _} ->
-        conn = put_flash(conn, :info, "Couldn't delete like")
+        conn
+        |> put_flash(:info, "Couldn't delete like")
+        |> redirect(to: Routes.browse_path(conn, :show, author_id, browse_post_id))
     end
-
-    # return to :show post made by author
-    conn = redirect(conn, to: Routes.browse_path(conn, :show, author_id, browse_id))
   end
 
   def action(conn, _) do

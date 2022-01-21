@@ -20,6 +20,7 @@ defmodule TwitterWeb.SessionControllerTest do
           session: %{username: user.username, password: @pass}
         )
 
+      assert get_flash(conn)["info"] == "Welcome back!"
       assert redirected_to(conn) == Routes.page_path(conn, :index)
     end
 
@@ -29,6 +30,7 @@ defmodule TwitterWeb.SessionControllerTest do
           session: %{username: user.username, password: @incorrect_pass}
         )
 
+      assert get_flash(conn)["error"] == "Invalid username/password combination"
       assert html_response(conn, 200) =~ "Sign in"
     end
   end

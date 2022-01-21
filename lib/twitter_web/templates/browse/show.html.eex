@@ -3,15 +3,29 @@
 <ul>
 
   <li>
-    <strong>body:</strong>
+  <strong>Content</strong>
+    <%= @post.user.username %>
     <%= @post.body %>
   </li>
-  <li>
-    <strong>Likes: </strong>
-    <%= %>
-  </li>
-
 </ul>
 
-<span><%= link "Edit", to: Routes.post_path(@conn, :edit, @post) %></span>
+<table>
+  <thead>
+    <tr>
+      <th><strong>Likes:</strong></th>
+      <th><%= length(@post.likes) %></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= if  length(@post.likes) > 0 do %>
+  <%= for like <- @post.likes do %>
+      <tr>
+        <td><%= like.user.username %></td>
+      </tr>
+  <% end %>
+<% end %>
+  </tbody>
+</table>
+
+<span> <%= link "Unlike", to: Routes.browse_unlike_path(@conn, :unlike, @post.user_id, @post.id) %></span>
 <span><%= link "Back", to: Routes.post_path(@conn, :index) %></span>

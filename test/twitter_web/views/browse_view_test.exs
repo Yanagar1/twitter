@@ -1,18 +1,17 @@
 defmodule TwitterWeb.BrowseViewTest do
   use TwitterWeb.ConnCase, async: true
   import Phoenix.View
+  alias Twitter.Twits
 
   setup %{conn: conn} do
     author = user_fixture()
     reader = user_fixture()
-    conn = init_test_session(conn, current_user: author, user_id: author.id)
 
-    posts = [
-      post_fixture(author, %{body: "i love you"}),
-      post_fixture(author, %{body: "i dont love you"})
-    ]
+    {:ok, post} = Twits.create_post(author, %{body: "i love you"})
+    Twits.create_like(reader, author.id, post.id)
 
-    conn = clear_session(conn)
+    # this preloads stuff
+    posts = [Twits.get_post!(author.id, post.id)]
 
     conn = init_test_session(conn, current_user: reader, user_id: reader.id)
 
@@ -25,6 +24,16 @@ defmodule TwitterWeb.BrowseViewTest do
 
     for post <- posts do
       assert String.contains?(content, post.body)
+    end
+  end
+
+  test "renders show.html", %{conn: conn, posts: posts} do
+    [post] = posts
+    content = render_to_string(TwitterWeb.BrowseView, "show.html", conn: conn, post: post)
+    assert String.contains?(content, "Show Public Post")
+
+    for like <- post.likes do
+      assert String.contains?(content, like.user.username)
     end
   end
 end

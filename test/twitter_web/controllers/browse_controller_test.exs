@@ -18,7 +18,6 @@ defmodule TwitterWeb.BrowseControllerTest do
     # login as reader
     setup %{conn: conn, post: post, author: author, reader: reader} do
       conn = init_test_session(conn, current_user: reader, user_id: reader.id)
-      like = [Twits.create_like(reader, post.id)]
 
       %{conn: conn, post: post, author: author, reader: reader}
     end
@@ -35,6 +34,8 @@ defmodule TwitterWeb.BrowseControllerTest do
 
     test "like a post", %{conn: conn, post: post, author: author, reader: reader} do
       conn = post(conn, Routes.browse_like_path(conn, :like, author.id, post.id))
+      # check that flash appeared
+      assert get_flash(conn)["info"] == "You liked this"
 
       # check if like exists in the db
       query =
@@ -42,22 +43,35 @@ defmodule TwitterWeb.BrowseControllerTest do
 
       assert Twitter.Repo.exists?(query) == true
 
+      # check if I can like it again
+      conn = post(conn, Routes.browse_like_path(conn, :like, author.id, post.id))
+      assert get_flash(conn)["info"] == "Couldn't send like"
+
       assert redirected_to(conn) == Routes.browse_path(conn, :show, author.id, post.id)
     end
 
-    test "unlike a post", %{conn: conn, post: post, author: author} do
+    test "unlike a post", %{conn: conn, post: post, author: author, reader: reader} do
+      Twits.create_like(reader, author.id, post.id)
       conn = delete(conn, Routes.browse_unlike_path(conn, :unlike, author.id, post.id))
+      # check that flash appeared
+      assert get_flash(conn)["info"] == "Like removed"
+
+      # check like doesn't exist in db
+      query =
+        from like in Twits.Like, where: like.post_id == ^post.id and like.user_id == ^reader.id
+
+      assert Twitter.Repo.exists?(query) == false
+
+      # try to delete again
+      assert_raise Ecto.NoResultsError, fn ->
+        delete(conn, Routes.browse_unlike_path(conn, :unlike, author.id, post.id))
+      end
+
       assert redirected_to(conn) == Routes.browse_path(conn, :show, author.id, post.id)
     end
   end
 
-  describe "index, show, like, unlike on failed log in" do
-    setup %{conn: conn, post: post, author: author, reader: reader} do
-      like = [Twits.create_like(reader, post.id)]
-
-      %{conn: conn, post: post, author: author, reader: reader}
-    end
-
+  describe "on failed log in" do
     test "index", %{conn: conn, author: author} do
       conn = get(conn, Routes.browse_path(conn, :index, author.id))
       assert redirected_to(conn) == Routes.page_path(conn, :index)

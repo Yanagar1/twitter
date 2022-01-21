@@ -44,8 +44,8 @@ defmodule TwitterWeb.PostController do
   show just one specific post.
   """
   @spec show(Plug.Conn.t(), map(), User.t()) :: Plug.Conn.t()
-  def show(conn, %{"id" => id}, current_user) do
-    post = Twits.get_post!(current_user, id)
+  def show(conn, %{"post_id" => post_id}, current_user) do
+    post = Twits.get_post!(current_user.id, post_id)
     render(conn, "show.html", post: post)
   end
 
@@ -53,8 +53,8 @@ defmodule TwitterWeb.PostController do
   load one specific post in editable form
   """
   @spec edit(Plug.Conn.t(), map(), User.t()) :: Plug.Conn.t()
-  def edit(conn, %{"id" => id}, current_user) do
-    post = Twits.get_post!(current_user, id)
+  def edit(conn, %{"post_id" => post_id}, current_user) do
+    post = Twits.get_post!(current_user.id, post_id)
     changeset = Post.changeset(post, %{})
     render(conn, "edit.html", post: post, changeset: changeset)
   end
@@ -63,8 +63,8 @@ defmodule TwitterWeb.PostController do
   resubmit the edited post
   """
   @spec update(Plug.Conn.t(), map(), User.t()) :: Plug.Conn.t()
-  def update(conn, %{"id" => id, "post" => post_params}, current_user) do
-    case Twits.update_post(current_user, id, post_params) do
+  def update(conn, %{"post_id" => post_id, "post" => post_params}, current_user) do
+    case Twits.update_post(current_user, post_id, post_params) do
       {:ok, post} ->
         conn
         |> put_flash(:info, "Post updated successfully.")
@@ -79,8 +79,8 @@ defmodule TwitterWeb.PostController do
   delete post by its id
   """
   @spec delete(Plug.Conn.t(), map(), User.t()) :: Plug.Conn.t()
-  def delete(conn, %{"id" => id}, current_user) do
-    {:ok, _post} = Twits.delete_post(current_user, id)
+  def delete(conn, %{"post_id" => post_id}, current_user) do
+    {:ok, _post} = Twits.delete_post(current_user, post_id)
 
     conn
     |> put_flash(:info, "Post deleted successfully.")

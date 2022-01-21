@@ -24,7 +24,7 @@ defmodule Twitter.AccountsTest do
     end
 
     test "enforces unique usernames" do
-      {:ok, %User{id: id}} = Accounts.create_user(@valid_attrs)
+      {:ok, %User{}} = Accounts.create_user(@valid_attrs)
       assert {:error, changeset} = Accounts.create_user(@valid_attrs)
       assert %{username: ["has already been taken"]} = errors_on(changeset)
     end

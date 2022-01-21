@@ -20,9 +20,11 @@ defmodule TwitterWeb.Router do
     get "/", PageController, :index
     resources "/users", UserController, only: [:index, :show, :new, :create]
     resources "/sessions", SessionController, only: [:new, :create, :delete]
-    resources "/posts", PostController
+    resources "/posts", PostController, param: "post_id"
 
-    resources "/browse/:author_id", BrowseController, only: [:index, :show] do
+    resources "/browse/:author_id", BrowseController,
+      only: [:index, :show],
+      param: "post_id" do
       post "/like", BrowseController, :like, as: :like
       delete "/unlike", BrowseController, :unlike, as: :unlike
     end

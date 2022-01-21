@@ -25,9 +25,9 @@ defmodule TwitterWeb.PostControllerTest do
 
     test "create post: redirects to show when data is valid", %{conn: conn} do
       conn = post(conn, Routes.post_path(conn, :create), post: @create_attrs)
-
-      assert %{id: id} = redirected_params(conn)
-      assert redirected_to(conn) == Routes.post_path(conn, :show, id)
+      assert get_flash(conn)["info"] == "Post created successfully."
+      assert %{post_id: post_id} = redirected_params(conn)
+      assert redirected_to(conn) == Routes.post_path(conn, :show, post_id)
     end
 
     test "create post: render form when data is invalid", %{conn: conn} do
@@ -48,6 +48,7 @@ defmodule TwitterWeb.PostControllerTest do
 
     test "update: redirects when data is valid", %{conn: conn, post: post} do
       conn = put(conn, Routes.post_path(conn, :update, post.id), post: @update_attrs)
+      assert get_flash(conn)["info"] == "Post updated successfully."
       assert redirected_to(conn) == Routes.post_path(conn, :show, post)
       conn = get(conn, Routes.post_path(conn, :show, post.id))
       assert html_response(conn, 200) =~ "some updated body"
@@ -60,6 +61,7 @@ defmodule TwitterWeb.PostControllerTest do
 
     test "delete: chosen post", %{conn: conn, post: post} do
       conn = delete(conn, Routes.post_path(conn, :delete, post.id))
+      assert get_flash(conn)["info"] == "Post deleted successfully."
       assert redirected_to(conn) == Routes.post_path(conn, :index)
 
       assert_error_sent 404, fn ->
@@ -77,36 +79,43 @@ defmodule TwitterWeb.PostControllerTest do
 
     test "index", %{conn: conn} do
       conn = get(conn, Routes.post_path(conn, :index))
+      assert get_flash(conn)["error"] == "You must be logged in to access that page"
       assert redirected_to(conn) == Routes.page_path(conn, :index)
     end
 
     test "new", %{conn: conn} do
       conn = get(conn, Routes.post_path(conn, :new))
+      assert get_flash(conn)["error"] == "You must be logged in to access that page"
       assert redirected_to(conn) == Routes.page_path(conn, :index)
     end
 
     test "create", %{conn: conn} do
       conn = post(conn, Routes.post_path(conn, :create), post: @create_attrs)
+      assert get_flash(conn)["error"] == "You must be logged in to access that page"
       assert redirected_to(conn) == Routes.page_path(conn, :index)
     end
 
     test "show", %{conn: conn, post: post} do
       conn = get(conn, Routes.post_path(conn, :show, post.id))
+      assert get_flash(conn)["error"] == "You must be logged in to access that page"
       assert redirected_to(conn) == Routes.page_path(conn, :index)
     end
 
     test "edit", %{conn: conn, post: post} do
       conn = get(conn, Routes.post_path(conn, :edit, post.id))
+      assert get_flash(conn)["error"] == "You must be logged in to access that page"
       assert redirected_to(conn) == Routes.page_path(conn, :index)
     end
 
     test "update", %{conn: conn, post: post} do
       conn = put(conn, Routes.post_path(conn, :update, post.id), post: @update_attrs)
+      assert get_flash(conn)["error"] == "You must be logged in to access that page"
       assert redirected_to(conn) == Routes.page_path(conn, :index)
     end
 
     test "delete", %{conn: conn, post: post} do
       conn = delete(conn, Routes.post_path(conn, :delete, post.id))
+      assert get_flash(conn)["error"] == "You must be logged in to access that page"
       assert redirected_to(conn) == Routes.page_path(conn, :index)
     end
   end
@@ -120,7 +129,7 @@ defmodule TwitterWeb.PostControllerTest do
 
       # me enters
       conn = init_test_session(conn, current_user: user_me, user_id: user_me.id)
-      my_post = post_fixture(user_me, %{body: "wuff wuff"})
+      post_fixture(user_me, %{body: "wuff wuff"})
 
       %{conn: conn, post: not_my_post, user1: user_me, user2: user_not_me}
     end
