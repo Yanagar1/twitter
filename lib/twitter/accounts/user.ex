@@ -47,13 +47,11 @@ defmodule Twitter.Accounts.User do
     |> unique_constraint([:username])
   end
 
+  defp put_pass_hash(%Ecto.Changeset{valid?: true, changes: %{password: pass}}) do
+    put_change(changeset, :password_hash, Pbkdf2.hash_pwd_salt(pass))
+  end
+  
   defp put_pass_hash(changeset) do
-    case changeset do
-      %Ecto.Changeset{valid?: true, changes: %{password: pass}} ->
-        put_change(changeset, :password_hash, Pbkdf2.hash_pwd_salt(pass))
-
-      _ ->
-        changeset
-    end
+    changeset
   end
 end
