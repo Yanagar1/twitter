@@ -14,7 +14,7 @@ defmodule Twitter.TestHelpers do
         name: "Some User",
         username: "user#{System.unique_integer([:positive])}",
         password: attrs[:password] || "supersecret",
-        email: "email"
+        email: "email#{System.unique_integer([:positive])}"
       })
       |> Accounts.create_user()
 

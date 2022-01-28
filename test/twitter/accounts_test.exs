@@ -11,6 +11,7 @@ defmodule Twitter.AccountsTest do
       password: "secret",
       email: "blabla"
     }
+
     @invalid_attrs %{}
 
     test "with valid data inserts user" do
@@ -27,6 +28,12 @@ defmodule Twitter.AccountsTest do
       {:ok, %User{}} = Accounts.create_user(@valid_attrs)
       assert {:error, changeset} = Accounts.create_user(@valid_attrs)
       assert %{username: ["has already been taken"]} = errors_on(changeset)
+    end
+
+    test "enforces unique email" do
+      {:ok, %User{}} = Accounts.create_user(@valid_attrs)
+      assert {:error, changeset} = Accounts.create_user(%{@valid_attrs | username: "another-username"})
+      assert %{email: ["has already been taken"]} = errors_on(changeset)
     end
 
     test "does not accept long usernames" do

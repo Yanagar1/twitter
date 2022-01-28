@@ -44,13 +44,14 @@ defmodule Twitter.Accounts.User do
     |> cast(attrs, [:name, :username, :email])
     |> validate_required([:name, :username, :email])
     |> validate_length(:username, min: 1, max: 25)
+    |> unique_constraint([:email])
     |> unique_constraint([:username])
   end
 
-  defp put_pass_hash(%Ecto.Changeset{valid?: true, changes: %{password: pass}}) do
+  defp put_pass_hash(%Ecto.Changeset{valid?: true, changes: %{password: pass}} = changeset) do
     put_change(changeset, :password_hash, Pbkdf2.hash_pwd_salt(pass))
   end
-  
+
   defp put_pass_hash(changeset) do
     changeset
   end
