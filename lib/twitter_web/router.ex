@@ -7,6 +7,7 @@ defmodule TwitterWeb.Router do
     plug :fetch_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug TwitterWeb.Auth
   end
 
   pipeline :api do
@@ -17,6 +18,16 @@ defmodule TwitterWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+    resources "/users", UserController, only: [:index, :show, :new, :create]
+    resources "/sessions", SessionController, only: [:new, :create, :delete]
+    resources "/posts", PostController, param: "post_id"
+
+    resources "/browse/:author_id", BrowseController,
+      only: [:index, :show],
+      param: "post_id" do
+      post "/like", BrowseController, :like, as: :like
+      delete "/unlike", BrowseController, :unlike, as: :unlike
+    end
   end
 
   # Other scopes may use custom stacks.

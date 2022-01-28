@@ -1,0 +1,21 @@
+<h1>Listing Posts</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for post <- @posts do %>
+    <tr>
+      <td><%= post.body %></td>
+      <td><%= length(post.likes) %></td>
+      <td>
+        <span> <%= link "Show", to: Routes.browse_path(@conn, :show, post.user_id, post.id) %></span>
+        <span> <%= link "Like", to: Routes.browse_like_path(@conn, :like, post.user_id, post.id) %></span>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>

@@ -1,4 +1,4 @@
-defmodule TwitterWeb.PageViewTest do
+defmodule TwitterWeb.SessionViewTest do
   use TwitterWeb.ConnCase, async: true
   import Phoenix.View
 
@@ -6,14 +6,14 @@ defmodule TwitterWeb.PageViewTest do
     %{conn: conn}
   end
 
-  test "render index.html", %{conn: conn} do
+  test "renders new.html", %{conn: conn} do
     content =
       render_to_string(
-        TwitterWeb.PageView,
-        "index.html",
+        TwitterWeb.SessionView,
+        "new.html",
         conn: conn
       )
 
-    assert String.contains?(content, "Rap Birds")
+    assert String.contains?(content, "Sign in")
   end
 end
